@@ -1,0 +1,13 @@
+[alias]
+	s = status
+	d = diff
+	au = add -u
+	co = checkout
+	br = branch
+	last = log -1 HEAD
+	cane = commit --amend --no-edit
+	lo = log --oneline -n 10
+	pr = pull --rebase
+	cm = commit
+	alias = ! git config --get-regexp ^alias\. | sed -e s/^alias\.// -e s/\ /\ =\ /
+
