@@ -1,0 +1,89 @@
+# For going inside running docker containers
+goinside() {
+    docker exec -it $1 bash -c "stty cols $COLUMNS rows $LINES && bash"
+}
+_goinside() {
+    COMPREPLY=($(docker ps --format "{{.Names}}" -f name=$2))
+}
+complete -F _goinside goinside
+export -f goinside
+
+### https://stackoverflow.com/questions/25109105/how-to-colorize-the-output-of-python-errors-in-the-gnome-terminal
+# print colorised python output
+# colorized() {
+#     local out='out.py'
+#     if (( $# < 1))
+#     then
+#         printf "Usage: %s pyhon-script\n" $0 >&2
+#         return 1;
+#     fi
+#     if [ -e $out ];
+#     then
+#         rm $out
+#     fi
+#     python $@ 2> $out
+#     empty=$(stat $out | grep empty)
+#     if (( $? == 1 ))
+#     then
+#         vimcat $out
+#     fi
+# }
+
+norm="$(printf '\033[0m')"   #returns to "normal"
+bold="$(printf '\033[0;1m')" #set bold
+red="$(printf '\033[0;31m')" #set red
+lightyellow="$(printf '\033[0;93m')"
+
+boldyellowonred="$(printf '\033[0;1;33;41m')"
+boldyellow="$(printf '\033[0;1;33m')"
+boldred="$(printf '\033[0;1;31m')"
+boldlightgreen="$(printf '\033[0;1;92m')"
+boldlightcyan="$(printf '\033[0;1;96m')"
+boldblue="$(printf '\033[0;1;34m')"
+boldwhite="$(printf '\033[0;1;37m')"
+boldmagenta="$(printf '\033[0;1;35m')"
+
+# TODO: colorize our paths custom
+copython() {
+    python $@ 2>&1 | sed -e "s/Traceback/${boldyellowonred}&${norm}/g" \
+        -e "s/File \".*\.py\"\,/${boldblue}&${norm}/g" \
+        -e "s/\(\, in \)\(.*$\)/\1${boldwhite}\2${norm}/g" \
+        -e "s/\([[:space:]]\{3,\}\)\(.*$\)/\1${boldlightcyan}\2${norm}/g"
+}
+
+### generic colorizer
+### usage colorizer <REST_OF_COMMAND..>
+# -e "s/\[[a-f0-9]\{8\}-\([^]]\)*\]/${boldlightgreen}&${norm}/g"   ### uuid
+colorizer() {
+    $@ 2>&1 | sed -e "s/Traceback/${boldyellowonred}&${norm}/g" \
+        -e "s/File \".*\.py\"\,/${boldblue}&${norm}/g" \
+        -e "s/\(\, in \)\(.*$\)/\1${boldwhite}\2${norm}/g" \
+        -e "s/\([[:space:]]\{3,\}\)\(.*$\)/\1${boldlightcyan}\2${norm}/g" \
+        -e "s/\[[[:digit:]]\{4\}-\([^]]\)*\]/${boldmagenta}&${norm}/g" \
+        -e "s/\([[:graph:]]\{2,\}\)\(\[[a-f0-9]\{8\}-\([^]]\)*\]\)/${lightyellow}\1${norm}/g"
+}
+
+what_did_i_do_since() {   
+    if [ -n "$1" ]; then
+        TIMESTAMP=$1
+    else
+        TIMESTAMP=yesterday
+    fi
+    echo "checking git logs since:${boldyellowonred} $TIMESTAMP ${norm}"
+
+    RESULT=`git log --all --author=cemysf --since=$TIMESTAMP --all --decorate | cat | grep 'origin' -A 4`
+
+    FORMAT_DATE="s/Date:.*/${boldlightgreen}&${norm}/g"
+    FORMAT_BRANCH="s/[(]origin.*/${boldlightcyan}&${norm}/g"
+
+    FORMAT_COMMIT_MSG="s/\([[:space:]]\{4,\}\)\(.*$\)/\1${boldmagenta}\2${norm}/g"
+    echo "$RESULT" | sed -e $FORMAT_DATE -e $FORMAT_BRANCH -e $FORMAT_COMMIT_MSG
+}
+export -f what_did_i_do_since
+
+
+kill_slack() {
+ for SLACK_PID in `ps aux | grep slack | awk '{print $2}'`; do kill $SLACK_PID; done
+}
+export -f kill_slack
+
