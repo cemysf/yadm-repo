@@ -35,6 +35,16 @@ red="$(printf '\033[0;31m')" #set red
 lightyellow="$(printf '\033[0;93m')"
 
 boldyellowonred="$(printf '\033[0;1;33;41m')"
+boldyellowonpurple="$(printf '\033[0;1;93;105m')"
+boldyellowonblue="$(printf '\033[0;1;93;104m')"
+
+
+boldonblue="$(printf '\033[0;1;97;104m')"
+boldonpurple="$(printf '\033[0;1;937;105m')"
+boldongreen="$(printf '\033[0;1;97;42m')"
+boldonred="$(printf '\033[0;1;97;41m')"
+
+
 boldyellow="$(printf '\033[0;1;33m')"
 boldred="$(printf '\033[0;1;31m')"
 boldlightgreen="$(printf '\033[0;1;92m')"
@@ -60,7 +70,13 @@ colorizer() {
         -e "s/\(\, in \)\(.*$\)/\1${boldwhite}\2${norm}/g" \
         -e "s/\([[:space:]]\{3,\}\)\(.*$\)/\1${boldlightcyan}\2${norm}/g" \
         -e "s/\[[[:digit:]]\{4\}-\([^]]\)*\]/${boldmagenta}&${norm}/g" \
-        -e "s/\([[:graph:]]\{2,\}\)\(\[[a-f0-9]\{8\}-\([^]]\)*\]\)/${lightyellow}\1${norm}/g"
+        -e "s/\([[:graph:]]\{2,\}\)\(\[[a-f0-9]\{8\}-\([^]]\)*\]\)/${lightyellow}\1${norm}/g" \
+        -e "s/REQUEST::/${boldyellowonblue}&${norm}/g" \
+        -e "s/RESPONSE::/${boldyellowonpurple}&${norm}/g" \
+        -e "s/\[GET\]/${boldonblue}&${norm}/g" \
+        -e "s/\[POST\]/${boldongreen}&${norm}/g" \
+        -e "s/\[PUT\]/${boldonpurple}&${norm}/g"  \
+        -e "s/\[DELETE\]/${boldonred}&${norm}/g" 
 }
 
 what_did_i_do_since() {   
